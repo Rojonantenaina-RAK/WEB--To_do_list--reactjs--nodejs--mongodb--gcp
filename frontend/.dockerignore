@@ -1,0 +1,15 @@
+# Ignorer les fichiers système
+node_modules
+.DS_Store
+
+# Ignorer les fichiers de configuration locaux
+.env
+*.log
+
+# Ignorer les fichiers liés à Git
+.git
+.gitignore
+
+# Ignorer les fichiers de build locaux
+dist
+coverage

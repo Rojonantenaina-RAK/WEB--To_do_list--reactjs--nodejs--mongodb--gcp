@@ -1,0 +1,68 @@
+name: CI/CD pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.review.state == 'approved'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.11.0'
+
+      # Install backend dependencies and run unit-test
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+        env:
+          PORT: ${{ secrets.PORT }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+
+      - name: Run backend
+        working-directory: ./backend
+        run: npm start
+        env:
+          PORT: ${{ secrets.PORT }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+
+      - name: Run backend unit-test
+        working-directory: ./backend
+        run: npm run test
+        env:
+          PORT: ${{ secrets.PORT }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+
+      # Install frontend dependencies and run unit-test and integration-test
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+
+      - name: Run frontend
+        working-directory: ./frontend
+        run: npm start
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+
+      - name: Run frontend unit-test
+        working-directory: ./frontend
+        run: npm run test-unit
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+
+      - name: Run frontend integration-test
+        working-directory: ./frontend
+        run: npm run test-integration
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
