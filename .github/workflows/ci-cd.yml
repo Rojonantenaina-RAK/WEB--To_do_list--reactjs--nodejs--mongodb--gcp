@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '22.11.0'
 
-      # Install backend dependencies and run unit-test
+      # Install backend dependencies
       - name: Install backend dependencies
         working-directory: ./backend
         run: npm install
@@ -28,13 +28,18 @@ jobs:
           PORT: ${{ secrets.PORT }}
           MONGO_URI: ${{ secrets.MONGO_URI }}
 
-      - name: Run backend
+      # Run backend in background
+      - name: Run backend in background
         working-directory: ./backend
-        run: npm start
-        env:
-          PORT: ${{ secrets.PORT }}
-          MONGO_URI: ${{ secrets.MONGO_URI }}
+        run: |
+          nohup npm start &  # Run backend in the background
+          echo "Waiting for backend to start..."
+          while ! curl -s http://localhost:5000; do
+            sleep 5  # Wait for the backend to start
+          done
+          echo "Backend is ready!"
 
+      # Run backend unit-test
       - name: Run backend unit-test
         working-directory: ./backend
         run: npm run test
@@ -42,25 +47,32 @@ jobs:
           PORT: ${{ secrets.PORT }}
           MONGO_URI: ${{ secrets.MONGO_URI }}
 
-      # Install frontend dependencies and run unit-test and integration-test
+      # Install frontend dependencies
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: npm install
         env:
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
 
-      - name: Run frontend
+      # Run frontend in background
+      - name: Run frontend in background
         working-directory: ./frontend
-        run: npm start
-        env:
-          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+        run: |
+          nohup npm start &  # Run frontend in the background
+          echo "Waiting for frontend to start..."
+          while ! curl -s http://localhost:3000; do
+            sleep 5  # Wait for the frontend to start
+          done
+          echo "Frontend is ready!"
 
+      # Run frontend unit-test
       - name: Run frontend unit-test
         working-directory: ./frontend
         run: npm run test-unit
         env:
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
 
+      # Run frontend integration-test
       - name: Run frontend integration-test
         working-directory: ./frontend
         run: npm run test-integration
