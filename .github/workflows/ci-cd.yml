@@ -34,10 +34,13 @@ jobs:
         run: |
           nohup npm start &  # Run backend in the background
           echo "Waiting for backend to start..."
-          while ! curl -s http://localhost:5000; do
+          while ! curl -s http://localhost:${{ secrets.PORT }}; do
             sleep 5  # Wait for the backend to start
           done
           echo "Backend is ready!"
+        env:
+          PORT: ${{ secrets.PORT }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
 
       # Run backend unit-test
       - name: Run backend unit-test
@@ -64,6 +67,8 @@ jobs:
             sleep 5  # Wait for the frontend to start
           done
           echo "Frontend is ready!"
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
 
       # Run frontend unit-test
       - name: Run frontend unit-test
