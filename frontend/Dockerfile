@@ -8,12 +8,12 @@ COPY ./package.json ./package-lock.json ./
 RUN npm config set fetch-timeout 600000
 RUN npm install --production
 
+# Définir la variable d'environnement pour la construction
+ENV REACT_APP_API_URL="http://todo-backend-service:5000"
+
 # Copier le reste des fichiers
 COPY . .
 RUN npm run build
-
-# Définir la variable d'environnement pour la construction
-ENV REACT_APP_API_URL="http://todo-backend-service:5000"
 
 # Servir l'application avec Nginx
 FROM nginx:stable-alpine
