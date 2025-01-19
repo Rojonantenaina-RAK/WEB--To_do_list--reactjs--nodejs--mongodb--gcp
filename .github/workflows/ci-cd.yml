@@ -83,3 +83,39 @@ jobs:
         run: npm run test-integration
         env:
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+
+  build_and_deploy:
+    needs: test  # Runs only if 'test' job is successful
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Authenticate with Google Cloud
+      - name: Set up GoogleCloud authentication
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      #Generate timestamp for tagging
+      - name: Generate timestamp for tagging
+        id: vars
+        run: echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+
+      # Configure Docker to use Google Artifact Registry
+      - name: Configure Docker
+        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
+        env:
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+
+      # Build and push backend image
+      - name: Build and push backend image
+        run: |
+          docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPO_NAME }}/todo-backend-image:v${{ env.TIMESTAMP }} ./backend
+          docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPO_NAME }}/todo-backend-image:v${{ env.TIMESTAMP }}
+        env:
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_REPO_NAME: ${{ secrets.GCP_REPO_NAME }}
+          TIMESTAMP: ${{ env.TIMESTAMP }}
+        
