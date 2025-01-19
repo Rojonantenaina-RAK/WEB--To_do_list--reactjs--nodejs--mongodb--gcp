@@ -12,6 +12,9 @@ RUN npm install --production
 COPY . .
 RUN npm run build
 
+# Définir la variable d'environnement pour la construction
+ENV REACT_APP_API_URL="http://todo-backend-service:5000"
+
 # Servir l'application avec Nginx
 FROM nginx:stable-alpine
 COPY --from=build /app/build /usr/share/nginx/html
