@@ -129,3 +129,62 @@ jobs:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           GCP_REPO_NAME: ${{ secrets.GCP_REPO_NAME }}
           TIMESTAMP: ${{ env.TIMESTAMP }}
+
+
+      # Update deployments on GKE
+      - name: Configure GKE credentials
+        run: |
+          gcloud container clusters get-credentials ${{ secrets.CLUSTER_NAME }} --zone ${{ secrets.CLUSTER_ZONE }} --project ${{ secrets.GCP_PROJECT_ID }}
+        env:
+          CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
+          CLUSTER_ZONE: ${{ secrets.CLUSTER_ZONE }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Update backend deployment
+        run: |
+          kubectl set image deployment/todo-backend-deployment todo-backend=${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPO_NAME }}/todo-backend-image:v${{ env.TIMESTAMP }}
+          kubectl rollout status deployment/todo-backend-deployment
+        env:
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_REPO_NAME: ${{ secrets.GCP_REPO_NAME }}
+          TIMESTAMP: ${{ env.TIMESTAMP }}
+
+      - name: Update frontend deployment
+        run: |
+          kubectl set image deployment/todo-frontend-deployment todo-frontend=${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPO_NAME }}/todo-frontend-image:v${{ env.TIMESTAMP }}
+          kubectl rollout status deployment/todo-frontend-deployment
+        env:
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_REPO_NAME: ${{ secrets.GCP_REPO_NAME }}
+          TIMESTAMP: ${{ env.TIMESTAMP }}
+
+      # Update deployments on GKE
+      - name: Configure GKE credentials
+        run: |
+          gcloud container clusters get-credentials ${{ secrets.CLUSTER_NAME }} --zone ${{ secrets.CLUSTER_ZONE }} --project ${{ secrets.GCP_PROJECT_ID }}
+        env:
+          CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
+          CLUSTER_ZONE: ${{ secrets.CLUSTER_ZONE }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Update backend deployment
+        run: |
+          kubectl set image deployment/todo-backend-deployment todo-backend=${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPO_NAME }}/todo-backend-image:v${{ env.TIMESTAMP }}
+          kubectl rollout status deployment/todo-backend-deployment
+        env:
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_REPO_NAME: ${{ secrets.GCP_REPO_NAME }}
+          TIMESTAMP: ${{ env.TIMESTAMP }}
+
+      - name: Update frontend deployment
+        run: |
+          kubectl set image deployment/todo-frontend-deployment todo-frontend=${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REPO_NAME }}/todo-frontend-image:v${{ env.TIMESTAMP }}
+          kubectl rollout status deployment/todo-frontend-deployment
+        env:
+          GCP_REGION: ${{ secrets.GCP_REGION }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_REPO_NAME: ${{ secrets.GCP_REPO_NAME }}
+          TIMESTAMP: ${{ env.TIMESTAMP }}
